@@ -20,6 +20,7 @@
         ,default_config/2, stored_config/2, build_default/2
         ,default_node/2, stored_node/2, diff_node_from_default/3
         ,list_configs/0
+        ,node_config/2
         ]).
 
 -define(DEFAULT, <<"default">>).
@@ -79,6 +80,12 @@ config_with_defaults(Id) ->
 default_config(Id, Keys) ->
     DefaultNode = schema_defaults(Id),
     lists:foldl(fun(Key,A) -> kz_json:set_value(Key, DefaultNode, A) end, kz_json:new(), [?DEFAULT|Keys]).
+
+-spec stored_config(kz_term:ne_binary(), kz_json:keys()) -> kz_json:object().
+node_config(Id, Node) ->
+    Config = config_with_default_node(Id),
+    NodeConfig = get_node(Config, Node),
+    kz_json:merge(kz_json:get_value(?DEFAULT, Config), NodeConfig).
 
 -spec stored_config(kz_term:ne_binary(), kz_json:keys()) -> kz_json:object().
 stored_config(Id, Keys) ->

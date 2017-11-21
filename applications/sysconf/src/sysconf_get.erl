@@ -59,4 +59,5 @@ get_value(Category, Key, Default, Node) ->
 
 -spec maybe_fix_undefined(any()) -> any().
 maybe_fix_undefined('undefined') -> <<"undefined">>;
+maybe_fix_undefined([]) -> <<"undefined">>;
 maybe_fix_undefined(Value) -> Value.

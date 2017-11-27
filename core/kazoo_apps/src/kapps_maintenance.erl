@@ -989,19 +989,11 @@ get_config_document(Id) ->
 -spec validate_system_config(kz_term:ne_binary()) -> [{_, _}].
 validate_system_config(Id) ->
     Doc = get_config_document(Id),
-    Keys = kz_json:get_keys(Doc),
-    Name = kapps_config_util:system_schema_name(Id),
-    case kz_json_schema:load(Name) of
-        {error,not_found} ->
-            [{no_schema_for, Id}];
-        {ok, Schema} ->
-            Validation = [ {Key, kz_json_schema:validate(Schema, kz_json:get_value(Key, Doc))} || Key <- Keys ],
-            lists:flatten([ {Key, get_error(Error)} || {Key, Error} <- Validation, not valid(Error) ])
+    Schema = kapps_config_util:system_config_document_schema(Id),
+    case kz_json_schema:validate(Schema, Doc) of
+        {ok, _} -> [];
+        {error, Validation} -> lists:flatten([ get_error(Error) || Error <- Validation])
     end.
-
--spec valid(any()) -> boolean().
-valid({ok, _}) -> true;
-valid(_) -> false.
 
 get_error({error, Errors}) -> [ get_error(Error) || Error <- Errors ];
 get_error({Code, _Schema, Error, Value, Path}) -> {Code, Error, Value, Path};

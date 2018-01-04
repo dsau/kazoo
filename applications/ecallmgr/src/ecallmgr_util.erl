@@ -1177,7 +1177,7 @@ media_path(MediaName, Type, UUID, JObj) ->
 fax_filename(UUID) ->
     Ext = ecallmgr_config:get_ne_binary(<<"default_fax_extension">>, <<".tiff">>),
     filename:join([ecallmgr_config:get_ne_binary(<<"fax_file_path">>, <<"/tmp/">>)
-                  ,<<(amqp_util:encode(UUID))/binary, Ext/binary>>
+                  ,<<(kz_kz_amqp_util:encode(UUID))/binary, Ext/binary>>
                   ]).
 
 -spec recording_filename(kz_term:ne_binary()) -> file:filename_all().
@@ -1187,7 +1187,7 @@ recording_filename(MediaName) ->
     RootName = filename:basename(MediaName, Ext),
     Directory = recording_directory(MediaName),
     RecordingName = filename:join([Directory
-                                  ,<<(amqp_util:encode(RootName))/binary, Ext/binary>>
+                                  ,<<(kz_kz_amqp_util:encode(RootName))/binary, Ext/binary>>
                                   ]),
     _ = kz_cache:store_local(?ECALLMGR_UTIL_CACHE
                             ,?ECALLMGR_PLAYBACK_MEDIA_KEY(MediaName)

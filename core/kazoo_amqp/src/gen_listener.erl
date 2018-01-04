@@ -977,15 +977,9 @@ start_amqp(Props, AutoAck) ->
 set_qos('undefined') -> 'ok';
 set_qos(N) when is_integer(N), N >= 0 -> kz_amqp_util:basic_qos(N).
 
-<<<<<<< Upstream, based on 2600hz/master
 -spec start_consumer(kz_term:ne_binary(), kz_term:proplist()) -> 'ok'.
-start_consumer(Q, 'undefined') -> amqp_util:basic_consume(Q, []);
-start_consumer(Q, ConsumeProps) -> amqp_util:basic_consume(Q, ConsumeProps).
-=======
--spec start_consumer(ne_binary(), kz_proplist()) -> 'ok'.
 start_consumer(Q, 'undefined') -> kz_amqp_util:basic_consume(Q, []);
 start_consumer(Q, ConsumeProps) -> kz_amqp_util:basic_consume(Q, ConsumeProps).
->>>>>>> 6a8c9f7 upgrade rabbitmq
 
 -spec remove_binding(binding_module(), kz_term:proplist(), kz_term:api_binary()) -> 'ok'.
 remove_binding(Binding, Props, Q) ->

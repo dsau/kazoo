@@ -69,7 +69,7 @@
         ,put_callid/1
         ]).
 
--include_lib("amqp_util.hrl").
+-include_lib("kz_amqp_util.hrl").
 -include_lib("kazoo_amqp/include/kz_amqp.hrl").
 -include_lib("kazoo_amqp/include/kapi_offnet_resource.hrl").
 
@@ -224,11 +224,11 @@ resp_v(JObj) -> resp_v(kz_json:to_proplist(JObj)).
 
 -spec bind_q(kz_term:ne_binary(), kz_term:proplist()) -> 'ok'.
 bind_q(Queue, _Props) ->
-    amqp_util:bind_q_to_resource(Queue, ?KEY_OFFNET_RESOURCE_REQ).
+    kz_amqp_util:bind_q_to_resource(Queue, ?KEY_OFFNET_RESOURCE_REQ).
 
 -spec unbind_q(kz_term:ne_binary(), kz_term:proplist()) -> 'ok'.
 unbind_q(Queue, _Props) ->
-    amqp_util:unbind_q_from_resource(Queue, ?KEY_OFFNET_RESOURCE_REQ).
+    kz_amqp_util:unbind_q_from_resource(Queue, ?KEY_OFFNET_RESOURCE_REQ).
 
 %%------------------------------------------------------------------------------
 %% @doc Declare the exchanges used by this API.
@@ -236,7 +236,7 @@ unbind_q(Queue, _Props) ->
 %%------------------------------------------------------------------------------
 -spec declare_exchanges() -> 'ok'.
 declare_exchanges() ->
-    amqp_util:resource_exchange().
+    kz_amqp_util:resource_exchange().
 
 -spec publish_req(kz_term:api_terms()) -> 'ok'.
 publish_req(JObj) ->
@@ -254,7 +254,7 @@ publish_req(Req, ContentType)
                 _ -> Req
             end,
     {'ok', Payload} = kz_api:prepare_api_payload(Props, ?OFFNET_RESOURCE_REQ_VALUES, fun req/1),
-    amqp_util:offnet_resource_publish(Payload, ContentType);
+    kz_amqp_util:offnet_resource_publish(Payload, ContentType);
 publish_req(Req, ContentType) ->
     publish_req(kz_json:to_proplist(Req), ContentType).
 
@@ -275,7 +275,7 @@ publish_resp(TargetQ, JObj) ->
 -spec publish_resp(kz_term:ne_binary(), kz_term:api_terms(), kz_term:ne_binary()) -> 'ok'.
 publish_resp(TargetQ, Resp, ContentType) ->
     {'ok', Payload} = kz_api:prepare_api_payload(Resp, ?OFFNET_RESOURCE_RESP_VALUES, fun resp/1),
-    amqp_util:targeted_publish(TargetQ, Payload, ContentType).
+    kz_amqp_util:targeted_publish(TargetQ, Payload, ContentType).
 
 -spec force_outbound(req()) -> boolean().
 force_outbound(Req) ->

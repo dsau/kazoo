@@ -84,7 +84,7 @@
         ,publish_dial_resp/2, publish_dial_resp/3
         ]).
 
--include_lib("amqp_util.hrl").
+-include_lib("kz_amqp_util.hrl").
 -include("kapi_dialplan.hrl").
 -include("kapi_call.hrl").
 
@@ -481,7 +481,7 @@
        ,list_to_binary([Event, "."
                        ,AccountId, "."
                        ,ConferenceId, "."
-                       ,amqp_util:encode(CallId)
+                       ,kz_amqp_util:encode(CallId)
                        ])
        ).
 -define(CONFERENCE_EVENT_HEADERS, [<<"Event">>
@@ -1152,32 +1152,33 @@ bind_q(Queue, Props) ->
     bind_to_q(Queue, props:get_value('restrict_to', Props), Props).
 
 bind_to_q(Q, 'undefined', _) ->
-    'ok' = amqp_util:bind_q_to_conference(Q, 'discovery'),
-    'ok' = amqp_util:bind_q_to_conference(Q, 'command'),
-    amqp_util:bind_q_to_conference(Q, 'event');
+    'ok' = kz_amqp_util:bind_q_to_conference(Q, 'discovery'),
+    'ok' = kz_amqp_util:bind_q_to_conference(Q, 'command'),
+    kz_amqp_util:bind_q_to_conference(Q, 'event');
 bind_to_q(Q, ['discovery'|T], Props) ->
-    'ok' = amqp_util:bind_q_to_conference(Q, 'discovery'),
+    'ok' = kz_amqp_util:bind_q_to_conference(Q, 'discovery'),
     bind_to_q(Q, T, Props);
 bind_to_q(Q, ['command'|T], Props) ->
-    'ok' = amqp_util:bind_q_to_conference(Q, 'command'),
+    'ok' = kz_amqp_util:bind_q_to_conference(Q, 'command'),
     bind_to_q(Q, T, Props);
 bind_to_q(Q, ['event'|T], Props) ->
-    'ok' = amqp_util:bind_q_to_conference(Q, 'event', <<"#">>),
+    'ok' = kz_amqp_util:bind_q_to_conference(Q, 'event', <<"#">>),
     bind_to_q(Q, T, Props);
 bind_to_q(Q, ['config'|T], Props) ->
-    'ok' = amqp_util:bind_q_to_conference(Q, 'config', <<"*">>),
+    Profile = props:get_value('profile', Props, <<"*">>),
+    'ok' = kz_amqp_util:bind_q_to_conference(Q, 'config', Profile),
     bind_to_q(Q, T, Props);
 bind_to_q(Q, [{'config', Profile}|T], Props) ->
-    'ok' = amqp_util:bind_q_to_conference(Q, 'config', Profile),
+    'ok' = kz_amqp_util:bind_q_to_conference(Q, 'config', Profile),
     bind_to_q(Q, T, Props);
 bind_to_q(Q, [{'event', {_ConfId, _CallId}=Key}|T], Props) ->
-    'ok' = amqp_util:bind_q_to_conference(Q, 'event', event_binding_key(Key)),
+    'ok' = kz_amqp_util:bind_q_to_conference(Q, 'event', event_binding_key(Key)),
     bind_to_q(Q, T, Props);
 bind_to_q(Q, [{'event', ConfIdOrProps}|T], Props) ->
-    'ok' = amqp_util:bind_q_to_conference(Q, 'event', event_binding_key(ConfIdOrProps)),
+    'ok' = kz_amqp_util:bind_q_to_conference(Q, 'event', event_binding_key(ConfIdOrProps)),
     bind_to_q(Q, T, Props);
 bind_to_q(Q, [{'command', ConfId}|T], Props) ->
-    'ok' = amqp_util:bind_q_to_conference(Q, 'command', ConfId),
+    'ok' = kz_amqp_util:bind_q_to_conference(Q, 'command', ConfId),
     bind_to_q(Q, T, Props);
 bind_to_q(_Q, [], _) ->
     'ok'.
@@ -1191,32 +1192,33 @@ unbind_q(Queue, Props) ->
     unbind_from_q(Queue, props:get_value('restrict_to', Props), Props).
 
 unbind_from_q(Q, 'undefined', _) ->
-    'ok' = amqp_util:unbind_q_from_conference(Q, 'discovery'),
-    'ok' = amqp_util:unbind_q_from_conference(Q, 'command'),
-    amqp_util:unbind_q_from_conference(Q, 'event');
+    'ok' = kz_amqp_util:unbind_q_from_conference(Q, 'discovery'),
+    'ok' = kz_amqp_util:unbind_q_from_conference(Q, 'command'),
+    kz_amqp_util:unbind_q_from_conference(Q, 'event');
 unbind_from_q(Q, ['discovery'|T], Props) ->
-    'ok' = amqp_util:unbind_q_from_conference(Q, 'discovery'),
+    'ok' = kz_amqp_util:unbind_q_from_conference(Q, 'discovery'),
     unbind_from_q(Q, T, Props);
 unbind_from_q(Q, ['command'|T], Props) ->
-    'ok' = amqp_util:unbind_q_from_conference(Q, 'command'),
+    'ok' = kz_amqp_util:unbind_q_from_conference(Q, 'command'),
     unbind_from_q(Q, T, Props);
 unbind_from_q(Q, ['event'|T], Props) ->
-    'ok' = amqp_util:unbind_q_from_conference(Q, 'event', <<"#">>),
+    'ok' = kz_amqp_util:unbind_q_from_conference(Q, 'event', <<"#">>),
     unbind_from_q(Q, T, Props);
 unbind_from_q(Q, ['config'|T], Props) ->
-    'ok' = amqp_util:unbind_q_from_conference(Q, 'config', <<"*">>),
+    Profile = props:get_value('profile', Props, <<"*">>),
+    'ok' = kz_amqp_util:unbind_q_from_conference(Q, 'config', Profile),
     unbind_from_q(Q, T, Props);
 unbind_from_q(Q, [{'config', Profile}|T], Props) ->
-    'ok' = amqp_util:unbind_q_from_conference(Q, 'config', Profile),
+    'ok' = kz_amqp_util:unbind_q_from_conference(Q, 'config', Profile),
     unbind_from_q(Q, T, Props);
 unbind_from_q(Q, [{'event', {_ConfId, _CallId}=Key}|T], Props) ->
-    'ok' = amqp_util:unbind_q_from_conference(Q, 'event', event_binding_key(Key)),
+    'ok' = kz_amqp_util:unbind_q_from_conference(Q, 'event', event_binding_key(Key)),
     unbind_from_q(Q, T, Props);
 unbind_from_q(Q, [{'event', ConfIdOrProps}|T], Props) ->
-    'ok' = amqp_util:unbind_q_from_conference(Q, 'event', event_binding_key(ConfIdOrProps)),
+    'ok' = kz_amqp_util:unbind_q_from_conference(Q, 'event', event_binding_key(ConfIdOrProps)),
     unbind_from_q(Q, T, Props);
 unbind_from_q(Q, [{'command', ConfId}|T], Props) ->
-    'ok' = amqp_util:bind_q_to_conference(Q, 'command', ConfId),
+    'ok' = kz_amqp_util:bind_q_to_conference(Q, 'command', ConfId),
     bind_to_q(Q, T, Props);
 unbind_from_q(_Q, [], _) -> 'ok'.
 
@@ -1226,7 +1228,7 @@ unbind_from_q(_Q, [], _) -> 'ok'.
 %%------------------------------------------------------------------------------
 -spec declare_exchanges() -> 'ok'.
 declare_exchanges() ->
-    amqp_util:conference_exchange().
+    kz_amqp_util:conference_exchange().
 
 %%------------------------------------------------------------------------------
 %% @doc Publish to the conference exchange.
@@ -1240,7 +1242,7 @@ publish_search_req(JObj) ->
 -spec publish_search_req(kz_term:api_terms(), kz_term:ne_binary()) -> 'ok'.
 publish_search_req(Req, ContentType) ->
     {'ok', Payload} = kz_api:prepare_api_payload(Req, ?SEARCH_REQ_VALUES, fun search_req/1),
-    amqp_util:conference_publish(Payload, 'discovery', 'undefined', [], ContentType).
+    kz_amqp_util:conference_publish(Payload, 'discovery', 'undefined', [], ContentType).
 
 %%------------------------------------------------------------------------------
 %% @doc Publish to the conference exchange.
@@ -1254,7 +1256,7 @@ publish_search_resp(Queue, Resp) ->
 -spec publish_search_resp(kz_term:ne_binary(), kz_term:api_terms(), kz_term:ne_binary()) -> 'ok'.
 publish_search_resp(Queue, Resp, ContentType) ->
     {'ok', Payload} = kz_api:prepare_api_payload(Resp, ?SEARCH_RESP_VALUES, fun search_resp/1),
-    amqp_util:targeted_publish(Queue, Payload, ContentType).
+    kz_amqp_util:targeted_publish(Queue, Payload, ContentType).
 
 %%------------------------------------------------------------------------------
 %% @doc Publish to the conference exchange.
@@ -1268,7 +1270,7 @@ publish_discovery_req(JObj) ->
 -spec publish_discovery_req(kz_term:api_terms(), kz_term:ne_binary()) -> 'ok'.
 publish_discovery_req(Req, ContentType) ->
     {'ok', Payload} = kz_api:prepare_api_payload(Req, ?DISCOVERY_REQ_VALUES, fun discovery_req/1),
-    amqp_util:conference_publish(Payload, 'discovery', 'undefined', [], ContentType).
+    kz_amqp_util:conference_publish(Payload, 'discovery', 'undefined', [], ContentType).
 
 %%------------------------------------------------------------------------------
 %% @doc Publish the response to requestor.
@@ -1282,7 +1284,7 @@ publish_discovery_resp(Q, JObj) ->
 -spec publish_discovery_resp(kz_term:ne_binary(), kz_term:api_terms(), kz_term:ne_binary()) -> 'ok'.
 publish_discovery_resp(Q, Req, ContentType) ->
     {'ok', Payload} = kz_api:prepare_api_payload(Req, ?DISCOVERY_RESP_VALUES, fun discovery_resp/1),
-    amqp_util:targeted_publish(Q, Payload, ContentType).
+    kz_amqp_util:targeted_publish(Q, Payload, ContentType).
 
 %%------------------------------------------------------------------------------
 %% @doc Publish to the conference exchange.
@@ -1296,7 +1298,7 @@ publish_add_participant(Zone, JObj) ->
 -spec publish_add_participant(kz_term:ne_binary(), kz_term:api_terms(), kz_term:ne_binary()) -> 'ok'.
 publish_add_participant(Zone, Req, ContentType) ->
     {'ok', Payload} = kz_api:prepare_api_payload(Req, ?ADD_PARTICIPANT_VALUES, fun add_participant/1),
-    amqp_util:conference_publish(Payload, 'command', Zone, [], ContentType).
+    kz_amqp_util:conference_publish(Payload, 'command', Zone, [], ContentType).
 
 %%------------------------------------------------------------------------------
 %% @doc Publish to the conference exchange.
@@ -1310,7 +1312,7 @@ publish_deaf_participant(ConferenceId, JObj) ->
 -spec publish_deaf_participant(kz_term:ne_binary(), kz_term:api_terms(), kz_term:ne_binary()) -> 'ok'.
 publish_deaf_participant(ConferenceId, Req, ContentType) ->
     {'ok', Payload} = kz_api:prepare_api_payload(Req, ?DEAF_PARTICIPANT_VALUES, fun deaf_participant/1),
-    amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType).
+    kz_amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType).
 
 %%------------------------------------------------------------------------------
 %% @doc Publish to the conference exchange.
@@ -1324,7 +1326,7 @@ publish_participant_energy(ConferenceId, JObj) ->
 -spec publish_participant_energy(kz_term:ne_binary(), kz_term:api_terms(), kz_term:ne_binary()) -> 'ok'.
 publish_participant_energy(ConferenceId, Req, ContentType) ->
     {'ok', Payload} = kz_api:prepare_api_payload(Req, ?PARTICIPANT_ENERGY_VALUES, fun participant_energy/1),
-    amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType).
+    kz_amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType).
 
 %%------------------------------------------------------------------------------
 %% @doc Publish to the conference exchange.
@@ -1338,7 +1340,7 @@ publish_kick(ConferenceId, JObj) ->
 -spec publish_kick(kz_term:ne_binary(), kz_term:api_terms(), kz_term:ne_binary()) -> 'ok'.
 publish_kick(ConferenceId, Req, ContentType) ->
     {'ok', Payload} = kz_api:prepare_api_payload(Req, ?KICK_VALUES, fun kick/1),
-    amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType).
+    kz_amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType).
 
 %%------------------------------------------------------------------------------
 %% @doc Publish to the conference exchange.
@@ -1352,7 +1354,7 @@ publish_participants_req(ConferenceId, JObj) ->
 -spec publish_participants_req(kz_term:ne_binary(), kz_term:api_terms(), kz_term:ne_binary()) -> 'ok'.
 publish_participants_req(ConferenceId, Req, ContentType) ->
     {'ok', Payload} = kz_api:prepare_api_payload(Req, ?PARTICIPANTS_REQ_VALUES, fun participants_req/1),
-    amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType).
+    kz_amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType).
 
 %%------------------------------------------------------------------------------
 %% @doc Publish to the conference exchange.
@@ -1366,7 +1368,7 @@ publish_participants_resp(Queue, Resp) ->
 -spec publish_participants_resp(kz_term:ne_binary(), kz_term:api_terms(), kz_term:ne_binary()) -> 'ok'.
 publish_participants_resp(Queue, Resp, ContentType) ->
     {'ok', Payload} = kz_api:prepare_api_payload(Resp, ?PARTICIPANTS_RESP_VALUES, fun participants_resp/1),
-    amqp_util:targeted_publish(Queue, Payload, ContentType).
+    kz_amqp_util:targeted_publish(Queue, Payload, ContentType).
 
 %%------------------------------------------------------------------------------
 %% @doc Publish to the conference exchange.
@@ -1380,7 +1382,7 @@ publish_lock(ConferenceId, JObj) ->
 -spec publish_lock(kz_term:ne_binary(), kz_term:api_terms(), kz_term:ne_binary()) -> 'ok'.
 publish_lock(ConferenceId, Req, ContentType) ->
     {'ok', Payload} = kz_api:prepare_api_payload(Req, ?LOCK_VALUES, fun lock/1),
-    amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType).
+    kz_amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType).
 
 %%------------------------------------------------------------------------------
 %% @doc Publish to the conference exchange.
@@ -1394,7 +1396,7 @@ publish_mute_participant(ConferenceId, JObj) ->
 -spec publish_mute_participant(kz_term:ne_binary(), kz_term:api_terms(), kz_term:ne_binary()) -> 'ok'.
 publish_mute_participant(ConferenceId, Req, ContentType) ->
     {'ok', Payload} = kz_api:prepare_api_payload(Req, ?MUTE_PARTICIPANT_VALUES, fun mute_participant/1),
-    amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType).
+    kz_amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType).
 
 %%------------------------------------------------------------------------------
 %% @doc Publish to the conference exchange.
@@ -1408,7 +1410,7 @@ publish_play(ConferenceId, JObj) ->
 -spec publish_play(kz_term:ne_binary(), kz_term:api_terms(), kz_term:ne_binary()) -> 'ok'.
 publish_play(ConferenceId, Req, ContentType) ->
     {'ok', Payload} = kz_api:prepare_api_payload(Req, ?PLAY_VALUES, fun play/1),
-    amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType).
+    kz_amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType).
 
 %%------------------------------------------------------------------------------
 %% @doc Publish to the conference exchange.
@@ -1422,7 +1424,7 @@ publish_record(ConferenceId, JObj) ->
 -spec publish_record(kz_term:ne_binary(), kz_term:api_terms(), kz_term:ne_binary()) -> 'ok'.
 publish_record(ConferenceId, Req, ContentType) ->
     {'ok', Payload} = kz_api:prepare_api_payload(Req, ?RECORD_VALUES, fun record/1),
-    amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType).
+    kz_amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType).
 
 %%------------------------------------------------------------------------------
 %% @doc Publish to the conference exchange.
@@ -1436,7 +1438,7 @@ publish_recordstop(ConferenceId, JObj) ->
 -spec publish_recordstop(kz_term:ne_binary(), kz_term:api_terms(), kz_term:ne_binary()) -> 'ok'.
 publish_recordstop(ConferenceId, Req, ContentType) ->
     {'ok', Payload} = kz_api:prepare_api_payload(Req, ?RECORDSTOP_VALUES, fun recordstop/1),
-    amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType).
+    kz_amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType).
 
 %%------------------------------------------------------------------------------
 %% @doc Publish to the conference exchange.
@@ -1450,7 +1452,7 @@ publish_relate_participants(ConferenceId, JObj) ->
 -spec publish_relate_participants(kz_term:ne_binary(), kz_term:api_terms(), kz_term:ne_binary()) -> 'ok'.
 publish_relate_participants(ConferenceId, Req, ContentType) ->
     {'ok', Payload} = kz_api:prepare_api_payload(Req, ?RELATE_PARTICIPANTS_VALUES, fun relate_participants/1),
-    amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType).
+    kz_amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType).
 
 %%------------------------------------------------------------------------------
 %% @doc Publish to the conference exchange.
@@ -1464,7 +1466,7 @@ publish_set(ConferenceId, JObj) ->
 -spec publish_set(kz_term:ne_binary(), kz_term:api_terms(), kz_term:ne_binary()) -> 'ok'.
 publish_set(ConferenceId, Req, ContentType) ->
     {'ok', Payload} = kz_api:prepare_api_payload(Req, ?SET_VALUES, fun set/1),
-    amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType).
+    kz_amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType).
 
 %%------------------------------------------------------------------------------
 %% @doc Publish to the conference exchange.
@@ -1478,7 +1480,7 @@ publish_stop_play(ConferenceId, JObj) ->
 -spec publish_stop_play(kz_term:ne_binary(), kz_term:api_terms(), kz_term:ne_binary()) -> 'ok'.
 publish_stop_play(ConferenceId, Req, ContentType) ->
     {'ok', Payload} = kz_api:prepare_api_payload(Req, ?STOP_PLAY_VALUES, fun stop_play/1),
-    amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType).
+    kz_amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType).
 
 %%------------------------------------------------------------------------------
 %% @doc Publish to the conference exchange.
@@ -1492,7 +1494,7 @@ publish_undeaf_participant(ConferenceId, JObj) ->
 -spec publish_undeaf_participant(kz_term:ne_binary(), kz_term:api_terms(), kz_term:ne_binary()) -> 'ok'.
 publish_undeaf_participant(ConferenceId, Req, ContentType) ->
     {'ok', Payload} = kz_api:prepare_api_payload(Req, ?UNDEAF_PARTICIPANT_VALUES, fun undeaf_participant/1),
-    amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType).
+    kz_amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType).
 
 %%------------------------------------------------------------------------------
 %% @doc Publish to the conference exchange.
@@ -1506,7 +1508,7 @@ publish_unlock(ConferenceId, JObj) ->
 -spec publish_unlock(kz_term:ne_binary(), kz_term:api_terms(), kz_term:ne_binary()) -> 'ok'.
 publish_unlock(ConferenceId, Req, ContentType) ->
     {'ok', Payload} = kz_api:prepare_api_payload(Req, ?UNLOCK_VALUES, fun unlock/1),
-    amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType).
+    kz_amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType).
 
 %%------------------------------------------------------------------------------
 %% @doc Publish to the conference exchange.
@@ -1520,7 +1522,7 @@ publish_unmute_participant(ConferenceId, JObj) ->
 -spec publish_unmute_participant(kz_term:ne_binary(), kz_term:api_terms(), kz_term:ne_binary()) -> 'ok'.
 publish_unmute_participant(ConferenceId, Req, ContentType) ->
     {'ok', Payload} = kz_api:prepare_api_payload(Req, ?UNMUTE_PARTICIPANT_VALUES, fun unmute_participant/1),
-    amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType).
+    kz_amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType).
 
 %%------------------------------------------------------------------------------
 %% @doc Publish to the conference exchange.
@@ -1534,7 +1536,7 @@ publish_participant_volume_in(ConferenceId, JObj) ->
 -spec publish_participant_volume_in(kz_term:ne_binary(), kz_term:api_terms(), kz_term:ne_binary()) -> 'ok'.
 publish_participant_volume_in(ConferenceId, Req, ContentType) ->
     {'ok', Payload} = kz_api:prepare_api_payload(Req, ?PARTICIPANT_VOLUME_IN_VALUES, fun participant_volume_in/1),
-    amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType).
+    kz_amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType).
 
 %%------------------------------------------------------------------------------
 %% @doc Publish to the conference exchange.
@@ -1548,7 +1550,7 @@ publish_participant_volume_out(ConferenceId, JObj) ->
 -spec publish_participant_volume_out(kz_term:ne_binary(), kz_term:api_terms(), kz_term:ne_binary()) -> 'ok'.
 publish_participant_volume_out(ConferenceId, Req, ContentType) ->
     {'ok', Payload} = kz_api:prepare_api_payload(Req, ?PARTICIPANT_VOLUME_OUT_VALUES, fun participant_volume_out/1),
-    amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType).
+    kz_amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType).
 
 %%------------------------------------------------------------------------------
 %% @doc Publish to the conference exchange.
@@ -1562,7 +1564,7 @@ publish_participant_event(ConferenceId, CallId, JObj) ->
 -spec publish_participant_event(kz_term:ne_binary(), kz_term:ne_binary(), kz_term:api_terms(), kz_term:ne_binary()) -> 'ok'.
 publish_participant_event(ConferenceId, CallId, Event, ContentType) ->
     {'ok', Payload} = kz_api:prepare_api_payload(Event, ?PARTICIPANT_EVENT_VALUES, fun participant_event/1),
-    amqp_util:conference_publish(Payload, 'event', ConferenceId, amqp_util:encode(CallId), [], ContentType).
+    kz_amqp_util:conference_publish(Payload, 'event', ConferenceId, kz_amqp_util:encode(CallId), [], ContentType).
 
 %%------------------------------------------------------------------------------
 %% @doc Publish to the conference exchange.
@@ -1576,7 +1578,7 @@ publish_event(API) ->
 -spec publish_event(kz_term:api_terms(), kz_term:ne_binary()) -> 'ok'.
 publish_event(API, ContentType) ->
     {'ok', Payload} = kz_api:prepare_api_payload(API, ?CONFERENCE_EVENT_VALUES, fun event/1),
-    amqp_util:conference_publish(Payload, 'event', event_key(API), [], ContentType).
+    kz_amqp_util:conference_publish(Payload, 'event', event_key(API), [], ContentType).
 
 event_binding_key(ConferenceId)
   when is_binary(ConferenceId) ->
@@ -1616,7 +1618,7 @@ publish_error(Queue, JObj) ->
 -spec publish_error(kz_term:ne_binary(), kz_term:api_terms(), kz_term:ne_binary()) -> 'ok'.
 publish_error(Queue, Req, ContentType) ->
     {'ok', Payload} = kz_api:prepare_api_payload(Req, ?CONFERENCE_ERROR_VALUES, fun conference_error/1),
-    amqp_util:targeted_publish(Queue, Payload, ContentType).
+    kz_amqp_util:targeted_publish(Queue, Payload, ContentType).
 
 %%------------------------------------------------------------------------------
 %% @doc Publish to the conference exchange.
@@ -1634,7 +1636,7 @@ publish_command(ConferenceId, Req, ContentType) ->
         'false' -> throw({'invalid_conference_command', Req});
         {_, Values, Fun} ->
             {'ok', Payload} = kz_api:prepare_api_payload(Req, Values, Fun),
-            amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType)
+            kz_amqp_util:conference_publish(Payload, 'command', ConferenceId, [], ContentType)
     end.
 
 %%------------------------------------------------------------------------------
@@ -1654,7 +1656,7 @@ publish_targeted_command(Focus, Req, ContentType) ->
         {_, Values, Fun} ->
             {'ok', Payload} = kz_api:prepare_api_payload(Req, Values, Fun),
             Queue = focus_queue_name(Focus),
-            amqp_util:targeted_publish(Queue, Payload, ContentType)
+            kz_amqp_util:targeted_publish(Queue, Payload, ContentType)
     end.
 
 %%------------------------------------------------------------------------------
@@ -1670,7 +1672,7 @@ publish_config_req(JObj) ->
 publish_config_req(Req, ContentType) ->
     Profile = profile(Req),
     {'ok', Payload} = kz_api:prepare_api_payload(Req, ?CONFIG_REQ_VALUES, fun config_req/1),
-    amqp_util:conference_publish(Payload, 'config', Profile, [], ContentType).
+    kz_amqp_util:conference_publish(Payload, 'config', Profile, [], ContentType).
 
 profile(Props) when is_list(Props) -> props:get_value(<<"Profile">>, Props);
 profile(JObj) -> kz_json:get_value(<<"Profile">>, JObj).
@@ -1687,7 +1689,7 @@ publish_config_resp(Queue, JObj) ->
 -spec publish_config_resp(kz_term:ne_binary(), kz_term:api_terms(), kz_term:ne_binary()) -> 'ok'.
 publish_config_resp(Queue, Req, ContentType) ->
     {'ok', Payload} = kz_api:prepare_api_payload(Req, ?CONFIG_RESP_VALUES, fun config_resp/1),
-    amqp_util:targeted_publish(Queue, Payload, ContentType).
+    kz_amqp_util:targeted_publish(Queue, Payload, ContentType).
 
 %%------------------------------------------------------------------------------
 %% @doc Publish to the conference exchange.
@@ -1701,7 +1703,7 @@ publish_dial(Zone, JObj) ->
 -spec publish_dial(kz_term:ne_binary(), kz_term:api_terms(), kz_term:ne_binary()) -> 'ok'.
 publish_dial(Zone, Req, ContentType) ->
     {'ok', Payload} = kz_api:prepare_api_payload(Req, ?DIAL_VALUES, fun dial/1),
-    amqp_util:conference_publish(Payload, 'command', Zone, [], ContentType).
+    kz_amqp_util:conference_publish(Payload, 'command', Zone, [], ContentType).
 
 -spec publish_dial_resp(kz_term:ne_binary(), kz_term:api_terms()) -> 'ok'.
 publish_dial_resp(Queue, JObj) ->
@@ -1710,4 +1712,4 @@ publish_dial_resp(Queue, JObj) ->
 -spec publish_dial_resp(kz_term:ne_binary(), kz_term:api_terms(), kz_term:ne_binary()) -> 'ok'.
 publish_dial_resp(Queue, Req, ContentType) ->
     {'ok', Payload} = kz_api:prepare_api_payload(Req, ?DIAL_RESP_VALUES, fun dial_resp/1),
-    amqp_util:targeted_publish(Queue, Payload, ContentType).
+    kz_amqp_util:targeted_publish(Queue, Payload, ContentType).

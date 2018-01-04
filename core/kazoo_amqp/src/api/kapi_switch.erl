@@ -300,10 +300,10 @@ publish_notify(Req, ContentType) ->
     Username = notify_username(Req),
 
     kz_amqp_util:basic_publish(?SWITCH_EXCHANGE
-                           ,?NOTIFY_KEY(Realm, Username)
-                           ,Payload
-                           ,ContentType
-                           ).
+                              ,?NOTIFY_KEY(Realm, Username)
+                              ,Payload
+                              ,ContentType
+                              ).
 
 -spec notify_realm(kz_term:api_terms()) -> kz_term:api_binary().
 notify_realm(Props) when is_list(Props) ->

@@ -619,8 +619,8 @@ shared_queue_name(AcctId, QueueId) ->
 queue_size(AcctId, QueueId) ->
     Q = shared_queue_name(AcctId, QueueId),
     try kz_amqp_util:new_queue(Q, [{'return_field', 'all'}
-                               ,{'passive', 'true'}
-                               ])
+                                  ,{'passive', 'true'}
+                                  ])
     of
         {'error', {'server_initiated_close', 404, _Msg}} ->
             lager:debug("failed to query queue size: ~s", [_Msg]),

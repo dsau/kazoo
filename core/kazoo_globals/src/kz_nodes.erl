@@ -547,7 +547,7 @@ init([]) ->
                              ,kz_term:to_binary(erlang:system_info('otp_release'))
                              ]),
     State = #state{tab = Tab
-                  ,zone = get_zone()
+                  ,zone = local_zone()
                   ,md5 = node_encoded()
                   ,version = Version
                   },
@@ -914,13 +914,6 @@ whapp_info_to_json(#whapp_info{startup=Start, roles=Roles}) ->
       [{<<"Startup">>, Start}
       ,{<<"Roles">>, Roles}
       ]).
-
--spec get_zone() -> atom().
-get_zone() ->
-    case kz_config:get(kz_config:get_node_section_name(), 'zone') of
-        [Zone] -> kz_term:to_atom(Zone, 'true');
-        _Else -> 'local'
-    end.
 
 -spec get_zone(kz_json:object(), nodes_state()) -> atom().
 get_zone(JObj, #state{zones=Zones, zone=LocalZone}) ->

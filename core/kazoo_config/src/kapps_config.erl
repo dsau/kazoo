@@ -766,10 +766,12 @@ is_locked() ->
 %%------------------------------------------------------------------------------
 -spec flush() -> 'ok'.
 flush() ->
+    _ = kz_cache:flush_local(?KAPPS_CONFIG_CACHE),
     kz_datamgr:flush_cache_docs(?KZ_CONFIG_DB).
 
 -spec flush(kz_term:ne_binary()) -> 'ok'.
 flush(Category) ->
+    _ = kz_cache:flush_local(?KAPPS_CONFIG_CACHE),
     kz_datamgr:flush_cache_doc(?KZ_CONFIG_DB, Category).
 
 -spec flush(kz_term:ne_binary(), kz_term:ne_binary()) -> 'ok'.

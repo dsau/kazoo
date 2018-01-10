@@ -1138,7 +1138,7 @@ node_role_count(Role) ->
 node_role_count(Role, Arg) ->
     length(with_role(Role, Arg)).
 
--spec with_role(kz_term:text()) -> kz_nodes().
+-spec with_role(kz_term:text()) -> kz_types:kz_nodes().
 with_role(Role) ->
     with_role(Role, 'false').
 

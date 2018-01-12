@@ -246,7 +246,8 @@ patch(Context, Id, Node) ->
 -spec delete(cb_context:context(), path_token()) ->
                     cb_context:context().
 delete(Context, _Id) ->
-    crossbar_doc:delete(Context, ?HARD_DELETE).
+    _ = crossbar_doc:delete(Context, ?HARD_DELETE),
+    Context.
 
 -spec delete(cb_context:context(), path_token(), path_token()) ->
                     cb_context:context().
@@ -271,12 +272,9 @@ delete(Context, Id, Node, Doc) ->
 %%------------------------------------------------------------------------------
 -spec read_for_delete(kz_term:ne_binary(), cb_context:context()) -> cb_context:context().
 read_for_delete(Id, Context) ->
-    Context1 = crossbar_doc:load(Id, Context, ?TYPE_CHECK_OPTION(<<"config">>)),
-    case cb_context:resp_status(Context) of
-        'success' -> Context1;
-        _Status ->
-            lager:debug("failed to find ~s(~s) for delete", [Id, _Status]),
-            Context1
+    case kapps_config:get_category(Id) of
+        {'ok', JObj} -> crossbar_doc:handle_datamgr_success(set_id(Id, JObj), Context);
+        {'error', Error} -> crossbar_doc:handle_datamgr_errors(Error, Id, Context)
     end.
 
 %%------------------------------------------------------------------------------

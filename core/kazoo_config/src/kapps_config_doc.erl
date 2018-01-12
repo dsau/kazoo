@@ -17,7 +17,8 @@
         ,schema_defaults/1
         ,config_with_defaults/1, config_with_default_node/1
         ,diff_from_default/2
-        ,default_config/2, stored_config/2, build_default/2
+        ,default_config/2, stored_config/2
+        ,build_default/1, build_default/2
         ,default_node/2, stored_node/2, diff_node_from_default/3
         ,list_configs/0
         ,node_config/2
@@ -109,6 +110,10 @@ build_default(Id, JObj) ->
     Default = kz_json:get_value(?DEFAULT, JObj, kz_json:new()),
     Config = lists:foldl(fun(K,A) -> apply_default_values(A, K, Default) end, kz_json:new(), get_keys(JObj)),
     apply_schema_defaults(Id, Config).
+
+-spec build_default(kz_term:ne_binary()) -> kz_json:object().
+build_default(Id) ->
+    build_default(Id, kz_json:new()).
 
 %%%=============================================================================
 %%% Node API

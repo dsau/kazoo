@@ -831,7 +831,7 @@ get_category(_, _) ->
 get_category(Category, 'true') ->
     case kz_datamgr:open_cache_doc(?KZ_CONFIG_DB, Category, [{'cache_failures', ['not_found']}]) of
         {'ok', JObj} -> {'ok', kapps_config_doc:config_with_default_node(JObj)};
-        _Other -> _Other
+        _Other -> {'ok', kapps_config_doc:build_default(Category)}
     end;
 get_category(Category, 'false') ->
     case kz_datamgr:open_doc(?KZ_CONFIG_DB, Category) of

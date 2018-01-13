@@ -169,6 +169,9 @@ validate_document_request(Context, Id, FullConfig) ->
 %%------------------------------------------------------------------------------
 
 -spec validate_document_node(cb_context:context(), path_token(), http_method(), kz_term:api_ne_binary()) -> cb_context:context().
+validate_document_node(Context, <<"default">> = Id, ?HTTP_GET, Node) ->
+    Config = set_id(Id, Node, kapps_config_doc:stored_node(Id, Node)),
+    crossbar_doc:handle_datamgr_success(Config, Context);
 validate_document_node(Context, Id, ?HTTP_GET, Node) ->
     Config =
         case kz_term:is_true(cb_context:req_value(Context, <<"with_defaults">>, false)) of
@@ -304,7 +307,7 @@ set_db_to_system(Context) ->
 
 -spec maybe_set_private_fields(kz_term:ne_binary(), kz_json:object()) -> kz_json:object().
 maybe_set_private_fields(ConfigId, JObj) ->
-    case kapps_config:get_category(ConfigId) of
+    case kapps_config:fetch_category(ConfigId) of
         {ok, Doc} -> kz_json:merge(JObj, kz_doc:private_fields(Doc));
         _ -> kz_doc:set_id(JObj, ConfigId)
     end.

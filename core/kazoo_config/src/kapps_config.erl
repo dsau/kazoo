@@ -16,6 +16,7 @@
         ,get_all_kvs/1
         ,get_current/2, get_current/3, get_current/4
         ,get_category/1
+        ,fetch_category/1
         ]).
 
 -export([get_node_value/2, get_node_value/3, get_node_value/4]).
@@ -838,6 +839,31 @@ get_category(Category, 'false') ->
         {'ok', JObj} -> {'ok', kapps_config_doc:config_with_default_node(JObj)};
         _Other -> _Other
     end.
+-endif.
+
+-spec fetch_category(kz_term:ne_binary()) -> fetch_ret().
+-spec fetch_category(kz_term:ne_binary(), boolean()) -> fetch_ret().
+
+fetch_category(Category) ->
+    fetch_category(Category, 'true').
+
+-ifdef(TEST).
+fetch_category(Category, _)
+  when Category =:= <<"test_account_config">>;
+       Category =:= <<"test_account_config_sub_empty">>;
+       Category =:= <<"test_account_config_reseller_only">>;
+       Category =:= <<"test_account_config_reseller_system">>;
+       Category =:= <<"test_account_config_system_empty">>;
+       Category =:= <<"test_account_config_system_only">>;
+       Category =:= <<"no_cat_please">> ->
+    kz_datamgr:open_doc(?KZ_CONFIG_DB, Category);
+fetch_category(_, _) ->
+    {'error', 'not_found'}.
+-else.
+fetch_category(Category, 'true') ->
+    kz_datamgr:open_cache_doc(?KZ_CONFIG_DB, Category, [{'cache_failures', ['not_found']}]);
+fetch_category(Category, 'false') ->
+    kz_datamgr:open_doc(?KZ_CONFIG_DB, Category).
 -endif.
 
 %%------------------------------------------------------------------------------

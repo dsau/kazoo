@@ -90,7 +90,7 @@ system_schema(Config) when is_binary(Config) ->
     Name = system_schema_name(Config),
     case kz_json_schema:load(Name) of
         {'ok', Schema} -> Schema;
-        _ -> system_config_no_document_schema()
+        _ -> system_config_no_schema()
     end.
 
 -spec account_schema(kz_term:ne_binary()) -> kz_json:object().
@@ -98,8 +98,18 @@ account_schema(Config) when is_binary(Config) ->
     Name = account_schema_name(Config),
     case kz_json_schema:load(Name) of
         {'ok', Schema} -> Schema;
-        _ -> system_config_no_document_schema()
+        _ -> system_config_no_schema()
     end.
+
+-spec system_config_no_schema() -> kz_json:object().
+system_config_no_schema() ->
+    Flat = [
+            {[<<"$schema">>],<<"http://json-schema.org/draft-04/schema#">>}
+           ,{[<<"id">>], <<"system_config">>}
+           ,{[<<"properties">>, <<"id">>, <<"type">>], <<"string">>}
+           ,{[<<"type">>], <<"object">>}
+           ],
+    kz_json:expand(kz_json:from_list(Flat)).
 
 -spec system_config_no_document_schema() -> kz_json:object().
 system_config_no_document_schema() ->
@@ -127,9 +137,9 @@ get_system_config_document_schema(Id) ->
            ,{[<<"id">>], <<"system_config">>}
            ,{[<<"type">>], <<"object">>}
            ,{[<<"properties">>, <<"id">>, <<"type">>], <<"string">>}
+           ,{[<<"properties">>, <<"default">>, <<"default">>], kz_json:new()}
            ,{[<<"properties">>, <<"default">>, <<"type">>], <<"object">>}
            ,{[<<"properties">>, <<"default">>, <<"$ref">>], system_schema_name(Id)}
-           ,{[<<"properties">>, <<"default">>, <<"default">>], kz_json:new()}
            ,{[<<"patternProperties">>, <<"(?!id\b)\b\w+">>, <<"$ref">>], system_schema_name(Id)}
            ,{[<<"patternProperties">>, <<"(?!id\b)\b\w+">>, <<"type">>], <<"object">>}
            ],

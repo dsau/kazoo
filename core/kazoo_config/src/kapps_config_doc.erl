@@ -89,6 +89,9 @@ node_config(Id, Node) ->
     kz_json:merge(kz_json:get_value(?DEFAULT, Config), NodeConfig).
 
 -spec stored_config(kz_term:ne_binary(), kz_json:keys()) -> kz_json:object().
+stored_config(Id, Key)
+  when is_binary(Key) ->
+    stored_config(Id, [Key]);
 stored_config(Id, Keys) ->
     Config = config_with_default_node(Id),
     Default = kz_json:get_value(?DEFAULT, Config, kz_json:new()),
@@ -113,7 +116,7 @@ build_default(Id, JObj) ->
 
 -spec build_default(kz_term:ne_binary()) -> kz_json:object().
 build_default(Id) ->
-    build_default(Id, kz_json:new()).
+    schema_defaults(Id).
 
 %%%=============================================================================
 %%% Node API

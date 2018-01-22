@@ -44,6 +44,8 @@
         ]).
 
 -export([does_schema_exist/1]).
+-export([check_system_configs/0]).
+-export([update_schemas/0]).
 
 -export([db_init/0]).
 
@@ -1142,16 +1144,20 @@ set_app_screenshots(AppId, PathToScreenshotsFolder) ->
              ],
     update_screenshots(AppId, MA, SShots).
 
+-spec check_system_configs() -> 'ok'.
+check_system_configs() ->
+    _ = [lager:warning("System config ~s validation error:~p", [Config, Error])
+         || {Config, Error} <- kapps_maintenance:validate_system_configs()
+        ],
+    'ok'.
+
 -spec update_schemas() -> 'ok'.
 update_schemas() ->
     kz_datamgr:suppress_change_notice(),
     lager:notice("starting system schemas update"),
     kz_datamgr:revise_docs_from_folder(?KZ_SCHEMA_DB, ?APP, <<"schemas">>),
     lager:notice("finished system schemas update"),
-    _ = [lager:warning("System config ~s validation error:~p", [Config, Error])
-         || {Config, Error} <- kapps_maintenance:validate_system_configs()
-        ],
-    'ok'.
+    check_system_configs().
 
 -spec db_init() -> 'ok'.
 db_init() ->

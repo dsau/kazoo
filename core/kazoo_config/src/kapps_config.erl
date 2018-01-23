@@ -841,13 +841,14 @@ get_category(Category, 'false') ->
     end.
 -endif.
 
--spec fetch_category(kz_term:ne_binary()) -> fetch_ret().
--spec fetch_category(kz_term:ne_binary(), boolean()) -> fetch_ret().
 
+-spec fetch_category(kz_term:ne_binary()) -> fetch_ret().
 fetch_category(Category) ->
     fetch_category(Category, 'true').
 
 -ifdef(TEST).
+
+-spec fetch_category(kz_term:ne_binary(), boolean()) -> fetch_ret().
 fetch_category(Category, _)
   when Category =:= <<"test_account_config">>;
        Category =:= <<"test_account_config_sub_empty">>;
@@ -860,6 +861,8 @@ fetch_category(Category, _)
 fetch_category(_, _) ->
     {'error', 'not_found'}.
 -else.
+
+-spec fetch_category(kz_term:ne_binary(), boolean()) -> fetch_ret().
 fetch_category(Category, 'true') ->
     kz_datamgr:open_cache_doc(?KZ_CONFIG_DB, Category, [{'cache_failures', ['not_found']}]);
 fetch_category(Category, 'false') ->

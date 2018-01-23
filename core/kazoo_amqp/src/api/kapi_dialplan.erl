@@ -1145,7 +1145,7 @@ publish_action(Queue, JSON) ->
 publish_action({CtrlQ, CtrlP}, Prop, DPApp) ->
     publish_action(CtrlQ, [{?KEY_DELIVER_TO_PID, CtrlP} | Prop], DPApp);
 publish_action(Queue, Payload, ContentType) ->
-    amqp_util:callctl_publish(Queue, Payload, ContentType).
+    kz_amqp_util:callctl_publish(Queue, Payload, ContentType).
 
 -spec publish_error(kz_term:ne_binary(), kz_term:api_terms()) -> 'ok'.
 publish_error(CallID, JObj) ->

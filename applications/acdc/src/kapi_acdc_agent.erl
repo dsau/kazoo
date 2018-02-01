@@ -550,7 +550,7 @@ publish_end_wrapup(JObj) ->
 -spec publish_end_wrapup(kz_term:api_terms(), kz_term:ne_binary()) -> 'ok'.
 publish_end_wrapup(API, ContentType) ->
     {'ok', Payload} = end_wrapup((API1 = kz_api:prepare_api_payload(API, ?END_WRAPUP_VALUES))),
-    amqp_util:kapps_publish(agent_status_routing_key(API1), Payload, ContentType).
+    kz_amqp_util:kapps_publish(agent_status_routing_key(API1), Payload, ContentType).
 
 -spec publish_login_resp(kz_term:ne_binary(), kz_term:api_terms()) -> 'ok'.
 publish_login_resp(RespQ, JObj) ->

@@ -83,44 +83,15 @@ $(RELX):
 
 clean-release:
 	$(if $(wildcard _rel/), rm -r _rel/)
-	$(if $(wildcard rel/relx.config rel/vm.args rel/dev-vm.args), \
-	  rm $(wildcard rel/relx.config rel/vm.args rel/dev-vm.args)  )
 
-build-release: $(RELX) clean-release rel/relx.config rel/vm.args
-	$(RELX) --config rel/relx.config -V 2 release --relname 'kazoo'
-#	patch _rel/'kazoo'/bin/'kazoo' -i rel/relx.patch
-build-all-release: build-release
-	for path in applications/*/; do \
-	  app=$$(echo $$path | cut -d/ -f2) ; \
-	  if [ $$app = 'skel' ]; then continue; fi ; \
-	  $(RELX) --config rel/relx.config -V 2 release --relname $$app ; \
-#	  patch _rel/$$app/bin/$$app -i rel/relx.patch ; \
-	done
-build-dev-release: $(RELX) clean-release rel/dev.relx.config rel/dev-vm.args rel/dev.sys.config
+build-release: $(RELX) clean-release rel/relx.config rel/relx.config.script rel/sys.config rel/vm.args
+	$(RELX) --config rel/relx.config -V 2 release --relname 'kazoo' --sys_config rel/sys.config --vm_args rel/vm.args
+build-dev-release: $(RELX) clean-release rel/dev.relx.config rel/dev.relx.config.script rel/dev.vm.args rel/dev.sys.config
 	$(RELX) --dev-mode true --config rel/dev.relx.config -V 2 release --relname 'kazoo' --sys_config rel/dev.sys.config --vm_args rel/dev.vm.args
-#	patch _rel/kazoo/bin/kazoo -i rel/relx.patch
-build-ci-release: $(RELX) clean-release rel/ci.relx.config rel/ci-vm.args rel/ci.sys.config
-	$(RELX) --config $(ROOT)/rel/ci.relx.config -V 2 release --relname 'kazoo' --sys_config $(ROOT)/rel/ci.sys.config --vm_args $(ROOT)/rel/ci-vm.args
-#	patch _rel/kazoo/bin/kazoo -i rel/relx.patch
-tar-release: $(RELX) rel/relx.config rel/vm.args
-	$(RELX) --config rel/relx.config -V 2 release tar --relname 'kazoo'
-
-rel/relx.config: rel/relx.config.src
-	$(ROOT)/scripts/src2any.escript $<
-rel/dev.relx.config: rel/dev.relx.config.src
-	$(ROOT)/scripts/src2any.escript $<
-rel/ci.relx.config: rel/ci.relx.config.src
-	$(ROOT)/scripts/src2any.escript $<
-rel/relx.config-dev: export KAZOO_DEV='true'
-rel/relx.config-dev: rel/relx.config.src
-	$(ROOT)/scripts/src2any.escript $<
-
-rel/dev-vm.args: rel/args  # Used by scripts/dev-start-*.sh
-	cp $^ $@
-rel/ci-vm.args: rel/args  # Used by scripts/dev-start-*.sh
-	cp $^ $@
-rel/vm.args: rel/args
-	cp $^ $@
+build-ci-release: $(RELX) clean-release rel/ci.relx.config rel/ci.relx.config.script rel/ci.sys.config rel/ci.vm.args
+	$(RELX) --config rel/relx.config -V 2 release --relname 'kazoo' --sys_config rel/ci.sys.config --vm_args rel/ci.vm.args
+tar-release: $(RELX) rel/relx.config rel/relx.config.script rel/sys.config rel/vm.args
+	$(RELX) --config rel/relx.config -V 2 release tar --relname 'kazoo' --sys_config rel/sys.config --vm_args rel/vm.args
 
 ## More ACTs at //github.com/erlware/relx/priv/templates/extended_bin
 release: ACT ?= console # start | attach | stop | console | foreground
@@ -166,7 +137,7 @@ dialyze-kazoo: dialyze
 dialyze-apps:  TO_DIALYZE  = $(shell find $(ROOT)/applications -name ebin)
 dialyze-apps: dialyze
 dialyze-core:  TO_DIALYZE  = $(shell find $(ROOT)/core         -name ebin)
-dialyze-core: dialyze
+dialyze-core: dialyze-it
 dialyze:       TO_DIALYZE ?= $(shell find $(ROOT)/applications -name ebin)
 dialyze: dialyze-it
 
@@ -240,6 +211,9 @@ apis:
 	@$(ROOT)/scripts/format-json.sh $(shell find applications core -wholename '*/api/*.json')
 	@ERL_LIBS=deps/:core/:applications/ $(ROOT)/scripts/generate-fs-headers-hrl.escript
 	@ERL_LIBS=deps/:core/:applications/ $(ROOT)/scripts/generate-kzd-builders.escript
+
+schemas:
+	@ERL_LIBS=deps/:core/:applications/ $(ROOT)/scripts/generate-schemas.escript
 
 DOCS_ROOT=$(ROOT)/doc/mkdocs
 docs: docs-validate docs-report docs-setup docs-build

@@ -86,10 +86,52 @@ warn(PLT, Path) ->
             R
     end.
 
-do_warn(PLT, Path) ->
-    length([ print(W)
-             || W <- scan(PLT, Path)
-                    , filter(W)
+do_warn(PLT, Paths) ->
+    {Apps, Beams} = lists:partition(fun({'app', _}) -> 'true'; (_) -> 'false' end, Paths),
+
+    {N, _} = lists:foldl(fun do_warn_path/2
+                        ,{0, PLT}
+                        ,[{'beams', Beams} | Apps]
+                        ),
+    N.
+
+%% explicitly adding `kz_types' so dialyzer knows about `sup_init_ret', `handle_call_ret_state' and other supervisor,
+%% gen_server, ... critical types defined in `kz_types'. Dialyzer is strict about types for these `init', `handle_*'
+%% functions and if we don't add `kz_types' here, dialyzer thinks their types are `any()' and will warn about it.
+ensure_kz_types(Beams) ->
+    case lists:any(fun(F) -> filename:basename(F, ".beam") =:= "kz_types" end, Beams) of
+        'true' -> Beams;
+        'false' -> [code:which(kz_types) | Beams]
+    end.
+
+do_warn_path({_, []}, Acc) -> Acc;
+do_warn_path({'beams', Beams}, {N, PLT}) ->
+    try lists:split(5, Beams) of
+        {Ten, Rest} ->
+            do_warn_path({'beams', Rest}
+                        ,{N + scan_and_print(PLT, Ten), PLT}
+                        )
+    catch
+        'error':'badarg' ->
+            {N + scan_and_print(PLT, Beams), PLT}
+    end;
+do_warn_path({'app', Beams}, {N, PLT}) ->
+    try lists:split(5, Beams) of
+        {Ten, Rest} ->
+            do_warn_path({'app', Rest}
+                        ,{N + scan_and_print(PLT, Ten), PLT}
+                        )
+    catch
+        'error':'badarg' ->
+            {N + scan_and_print(PLT, Beams), PLT}
+    end.
+
+scan_and_print(PLT, Bs) ->
+    Beams = ensure_kz_types(Bs),
+    io:format("scanning ~s~n", [string:join(Beams, " ")]),
+    length([print(W)
+            || W <- scan(PLT, Beams),
+               filter(W)
            ]).
 
 

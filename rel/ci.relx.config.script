@@ -37,7 +37,7 @@ Base = [runtime_tools
            ,{template, "kazoo", "{{output_dir}}/bin/kazoo"}
           ]}
             
-,{default_release, kazoo, "4.0.0"}
+,{default_release, {kazoo, "4.0.0"}}
 ,{release, {kazoo,"4.0.0"}
  ,Base ++ Preparer(Apps ++ Core ++ Deps)
  }

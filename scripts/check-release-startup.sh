@@ -5,7 +5,7 @@
 echo "Checking release startup with node $rel..."
 
 sup() {
-    "$PWD"/_rel/kazoo/bin/sup "$*"
+    "$PWD"/_rel/kazoo/bin/sup $*
 }
 
 shutdown() {
@@ -16,7 +16,7 @@ waitfor() {
 TIMEOUT=${1:-"120"}
 SEARCH_TERM=${2:-"nada"}
 echo "waiting for '$SEARCH_TERM'"
-(timeout --foreground $TIMEOUT tail -f _rel/log/debug.log  2>&1 &) | grep -q "$SEARCH_TERM" && echo "found '$SEARCH_TERM'" && exit 0
+(timeout --foreground $TIMEOUT tail -f _rel/kazoo/log/debug.log  2>&1 &) | grep -q "$SEARCH_TERM" && echo "found '$SEARCH_TERM'" && exit 0
 echo "timeout waiting for '$SEARCH_TERM'"
 }
 
@@ -24,7 +24,7 @@ echo "timeout waiting for '$SEARCH_TERM'"
 script() {
     mkdir -p _rel/kazoo/log
     touch _rel/kazoo/log/debug.log
-    waitfor 2m "finished system schemas update"
+    waitfor 120 "finished system schemas update"
     sup crossbar_maintenance create_account 'compte_maitre' 'royaume' 'superduperuser' 'pwd!' || shutdown
     sleep 3
     sup kapps_maintenance migrate || shutdown

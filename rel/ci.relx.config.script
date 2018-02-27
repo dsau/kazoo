@@ -36,7 +36,7 @@ VSN = os:cmd("echo -n $(scripts/next_version 2>/dev/null)"),
 ,{vm_args, "rel/ci.vm.args"}
 
 
-,{overlay, [{copy, "../core/sup/priv/sup", "{{output_dir}}/bin/"}
+,{overlay, [{copy, "../core/sup/sup", "{{output_dir}}/bin/"}
            ,{copy, "nodetool", "{{output_dir}}/bin/"}
            ,{template, "kazoo", "{{output_dir}}/bin/kazoo"}
           ]}

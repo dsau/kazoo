@@ -864,7 +864,7 @@ publish_average_wait_time_req(JObj) ->
 -spec publish_average_wait_time_req(kz_term:api_terms(), binary()) -> 'ok'.
 publish_average_wait_time_req(API, ContentType) ->
     {'ok', Payload} = kz_api:prepare_api_payload(API, ?AVERAGE_WAIT_TIME_REQ_VALUES, fun average_wait_time_req/1),
-    amqp_util:kapps_publish(query_call_stat_routing_key(API), Payload, ContentType).
+    kz_amqp_util:kapps_publish(query_call_stat_routing_key(API), Payload, ContentType).
 
 -spec publish_average_wait_time_err(kz_term:ne_binary(), kz_term:api_terms()) -> 'ok'.
 publish_average_wait_time_err(RespQ, JObj) ->
@@ -873,7 +873,7 @@ publish_average_wait_time_err(RespQ, JObj) ->
 -spec publish_average_wait_time_err(kz_term:ne_binary(), kz_term:api_terms(), binary()) -> 'ok'.
 publish_average_wait_time_err(RespQ, API, ContentType) ->
     {'ok', Payload} = kz_api:prepare_api_payload(API, ?AVERAGE_WAIT_TIME_ERR_VALUES, fun average_wait_time_err/1),
-    amqp_util:targeted_publish(RespQ, Payload, ContentType).
+    kz_amqp_util:targeted_publish(RespQ, Payload, ContentType).
 
 -spec publish_average_wait_time_resp(kz_term:ne_binary(), kz_term:api_terms()) -> 'ok'.
 publish_average_wait_time_resp(RespQ, JObj) ->
@@ -882,7 +882,7 @@ publish_average_wait_time_resp(RespQ, JObj) ->
 -spec publish_average_wait_time_resp(kz_term:ne_binary(), kz_term:api_terms(), binary()) -> 'ok'.
 publish_average_wait_time_resp(RespQ, API, ContentType) ->
     {'ok', Payload} = kz_api:prepare_api_payload(API, ?AVERAGE_WAIT_TIME_RESP_VALUES, fun average_wait_time_resp/1),
-    amqp_util:targeted_publish(RespQ, Payload, ContentType).
+    kz_amqp_util:targeted_publish(RespQ, Payload, ContentType).
 
 -spec publish_status_req(kz_term:api_terms()) -> 'ok'.
 publish_status_req(JObj) ->

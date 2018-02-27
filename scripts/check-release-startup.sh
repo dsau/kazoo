@@ -22,7 +22,7 @@ echo "timeout waiting for '$SEARCH_TERM'"
 
 
 script() {
-    touch _rel/log/debug.log
+    touch _rel/kazoo/log/debug.log
     waitfor 2m "finished system schemas update"
     sup crossbar_maintenance create_account 'compte_maitre' 'royaume' 'superduperuser' 'pwd!' || shutdown
     sleep 3

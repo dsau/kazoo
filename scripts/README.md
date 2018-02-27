@@ -810,3 +810,7 @@ Generate API clients in multiple languages from the Swagger file.
 
 returns next release based on branch & tags.
 
+## `increment_version.bash`
+
+routine to increment a version
+

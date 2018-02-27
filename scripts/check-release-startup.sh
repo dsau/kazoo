@@ -5,7 +5,7 @@
 echo "Checking release startup with node $rel..."
 
 sup() {
-    "$PWD"/core/sup/priv/sup "$*"
+    "$PWD"/_rel/kazoo/bin/sup "$*"
 }
 
 shutdown() {
@@ -22,6 +22,7 @@ echo "timeout waiting for '$SEARCH_TERM'"
 
 
 script() {
+    mkdir -p _rel/kazoo/log
     touch _rel/kazoo/log/debug.log
     waitfor 2m "finished system schemas update"
     sup crossbar_maintenance create_account 'compte_maitre' 'royaume' 'superduperuser' 'pwd!' || shutdown

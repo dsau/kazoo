@@ -1,11 +1,9 @@
-%%%-------------------------------------------------------------------
-%%% @copyright (C) 2010-2017, 2600Hz INC
+%%%-----------------------------------------------------------------------------
+%%% @copyright (C) 2010-2018, 2600Hz
 %%% @doc
-%%%
+%%% @author Karl Anderson
 %%% @end
-%%% @contributors
-%%%   Karl Anderson
-%%%-------------------------------------------------------------------
+%%%-----------------------------------------------------------------------------
 -module(kazoo_events_app).
 -behaviour(application).
 
@@ -21,13 +19,11 @@ start() ->
 
 %% Application callbacks
 
-%% @public
 %% @doc Implement the application start behaviour
 -spec start(application:start_type(), any()) -> kz_types:startapp_ret().
 start(_StartType, _StartArgs) ->
     kazoo_events_sup:start_link().
 
-%% @public
 %% @doc Implement the application stop behaviour
 -spec stop(any()) -> any().
 stop(_State) ->

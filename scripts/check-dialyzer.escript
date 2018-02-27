@@ -1,4 +1,3 @@
-
 #!/usr/bin/env escript
 %%! +A0 -sname kazoo_dialyzer
 %% -*- coding: utf-8 -*-

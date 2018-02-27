@@ -11,10 +11,6 @@ ToFilterOut = [rabbitmq_codegen
               ,skel
               ,parse_trans
               ,meck
-              ,'kazoo_slack'
-              ,'exml'
-              ,'escalus'
-              ,'amqp_dist'
               ],
 Preparer = fun (List) -> [{E,load} || E <- List, not lists:member(E, ToFilterOut)] end,
 Base = [runtime_tools
@@ -50,5 +46,5 @@ Base = [runtime_tools
     ,Base ++ Preparer([App] ++ Core ++ Deps)
     }
     || App <- Apps,
-       App =/= skel
+       not lists:member(App, ToFilterOut)
    ].

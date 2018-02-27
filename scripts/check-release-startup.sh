@@ -2,10 +2,6 @@
 
 [[ ! -d _rel ]] && echo 'Cannot find _rel/ Is the release built?' && exit -1
 
-rel=${REL:-kazoo_apps}  # kazoo_apps | ecallmgr | ...
-[[ $rel != *@* ]] && rel=$rel@$(hostname -f)
-[[ $rel != kazoo_apps* ]] && export KAZOO_APPS='ecallmgr'
-
 echo "Checking release startup with node $rel..."
 
 sup() {
@@ -16,7 +12,18 @@ shutdown() {
     sup init stop
 }
 
+waitfor() {
+TIMEOUT=${1:-"120"}
+SEARCH_TERM=${2:-"nada"}
+echo "waiting for '$SEARCH_TERM'"
+(timeout --foreground $TIMEOUT tail -f _rel/log/debug.log  2>&1 &) | grep -q "$SEARCH_TERM" && echo "found '$SEARCH_TERM'" && exit 0
+echo "timeout waiting for '$SEARCH_TERM'"
+}
+
+
 script() {
+    touch _rel/log/debug.log
+    waitfor 2m "finished system schemas update"
     sup crossbar_maintenance create_account 'compte_maitre' 'royaume' 'superduperuser' 'pwd!' || shutdown
     sleep 3
     sup kapps_maintenance migrate || shutdown
@@ -26,9 +33,10 @@ script() {
     shutdown
 }
 
-sleep 240 && script &
-export KAZOO_CONFIG=$PWD/rel/ci-config.ini
-REL=$rel make release
+script &
+export KAZOO_CONFIG=$PWD/rel/ci.config.ini
+#REL=$rel make release
+$PWD/_rel/kazoo/bin/kazoo console
 code=$?
 
 if [[ -f erl_crash.dump ]]; then

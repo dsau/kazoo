@@ -85,13 +85,13 @@ clean-release:
 	$(if $(wildcard _rel/), rm -r _rel/)
 
 build-release: $(RELX) clean-release rel/relx.config rel/relx.config.script rel/sys.config rel/vm.args
-	$(RELX) --config rel/relx.config -V 2 release --relname 'kazoo' --sys_config rel/sys.config --vm_args rel/vm.args
+	$(RELX) --config rel/relx.config -V 2 release --relname 'kazoo'
 build-dev-release: $(RELX) clean-release rel/dev.relx.config rel/dev.relx.config.script rel/dev.vm.args rel/dev.sys.config
-	$(RELX) --dev-mode true --config rel/dev.relx.config -V 2 release --relname 'kazoo' --sys_config rel/dev.sys.config --vm_args rel/dev.vm.args
+	$(RELX) --dev-mode true --config rel/dev.relx.config -V 2 release --relname 'kazoo'
 build-ci-release: $(RELX) clean-release rel/ci.relx.config rel/ci.relx.config.script rel/ci.sys.config rel/ci.vm.args
-	$(RELX) --config rel/relx.config -V 2 release --relname 'kazoo' --sys_config rel/ci.sys.config --vm_args rel/ci.vm.args
+	$(RELX) --config rel/relx.config -V 2 release --relname 'kazoo'
 tar-release: $(RELX) rel/relx.config rel/relx.config.script rel/sys.config rel/vm.args
-	$(RELX) --config rel/relx.config -V 2 release tar --relname 'kazoo' --sys_config rel/sys.config --vm_args rel/vm.args
+	$(RELX) --config rel/relx.config -V 2 release tar --relname 'kazoo'
 
 ## More ACTs at //github.com/erlware/relx/priv/templates/extended_bin
 release: ACT ?= console # start | attach | stop | console | foreground

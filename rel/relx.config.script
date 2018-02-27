@@ -19,6 +19,7 @@ Base = [runtime_tools
        ,debugger
        ,sasl
        ],
+VSN = os:cmd("echo -n $(scripts/next_version 2>/dev/null)"),
 
 [{lib_dirs, ["applications"
             ,"core"
@@ -30,18 +31,20 @@ Base = [runtime_tools
 ,{generate_start_script, false}
 ,{extended_start_script, false}
 
+,{sys_config, "rel/sys.config"}
+,{vm_args, "rel/vm.args"}
 
 ,{overlay, [{copy, "../core/sup/priv/sup", "{{output_dir}}/bin/"}
            ,{copy, "nodetool", "{{output_dir}}/bin/"}
            ,{template, "kazoo", "{{output_dir}}/bin/kazoo"}
           ]}
             
-,{default_release, {kazoo, "4.0.0"}}
-,{release, {kazoo,"4.0.0"}
+,{default_release, {kazoo, VSN}}
+,{release, {kazoo, VSN}
  ,Base ++ Preparer(Apps ++ Core ++ Deps)
  }
 ]
-++ [{release, {App, "4.0.0"}
+++ [{release, {App, VSN}
     ,Base ++ Preparer([App] ++ Core ++ Deps)
     }
     || App <- Apps,

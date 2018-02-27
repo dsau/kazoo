@@ -20,13 +20,13 @@ ToFilterOut = [rabbitmq_codegen
               ,'amqp_dist'
               ],
 Preparer = fun (List) -> [{E,load} || E <- List, not lists:member(E, ToFilterOut)] end,
-%Preparer = fun (List) -> [E || E <- List, not lists:member(E, ToFilterOut)] end,
 Base = [runtime_tools
        ,wx
        ,observer
        ,debugger
        ,sasl
        ],
+VSN = os:cmd("echo -n $(scripts/next_version 2>/dev/null)"),
 
 [{lib_dirs, ["applications"
             ,"core"
@@ -39,21 +39,22 @@ Base = [runtime_tools
 ,{generate_start_script, false}
 ,{extended_start_script, false}
 
+,{sys_config, "rel/dev.sys.config"}
+,{vm_args, "rel/dev.vm.args"}
+
 ,{overlay, [{copy, "../core/sup/sup", "{{output_dir}}/bin/"}
            ,{copy, "nodetool", "{{output_dir}}/bin/"}
            ,{template, "kazoo", "{{output_dir}}/bin/kazoo"}
           ]}
             
-,{default_release, {kazoo, "4.2.0"}}
-,{release, {kazoo, "4.2.0"}
-%% ,Base ++ Preparer(Apps)
+,{default_release, {kazoo, VSN}}
+,{release, {kazoo, VSN}
  ,Base ++ Preparer(Apps ++ Core ++ Deps)
-%% ,[]
  }
 ] ++ [begin
        {ok, [{application, App, Settings}]} = file:consult(list_to_binary(["applications/", atom_to_list(App), "/ebin/", atom_to_list(App), ".app"])),
        AppDeps = proplists:get_value(applications, Settings, []),
-       {release, {App, "4.2.0"}, Base ++ Preparer(AppDeps)}
+       {release, {App, VSN}, Base ++ Preparer(AppDeps)}
       end
     || App <- Apps,
        not lists:member(App, ToFilterOut)

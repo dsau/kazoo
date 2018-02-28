@@ -3,7 +3,7 @@
 
 echo "Checking release startup..."
 
-REL_DIR=$(dirname $0)/../_rel/kazoo
+REL_DIR=$(dirname $(readlink -f $0))/../_rel/kazoo
 PATH=$PATH:$(dirname $0):${REL_DIR}/bin
 export PATH
 LOG_DIR=${REL_DIR}/log
@@ -19,7 +19,7 @@ waitfor() {
 TIMEOUT=${1:-"120"}
 SEARCH_TERM=${2:-"nada"}
 echo "waiting for '$SEARCH_TERM'"
-(timeout --foreground $TIMEOUT tail -f _rel/kazoo/log/debug.log  2>&1 &) | grep -q "$SEARCH_TERM" && echo "found '$SEARCH_TERM'" && return 0
+(timeout --foreground $TIMEOUT tail -f ${LOG_DIR}/debug.log  2>&1 &) | grep -q "$SEARCH_TERM" && echo "found '$SEARCH_TERM'" && return 0
 echo "timeout waiting for '$SEARCH_TERM'" > ${LOG_DIR}/error.log
 echo "timeout waiting for '$SEARCH_TERM'"
 return 1
@@ -48,7 +48,7 @@ export KAZOO_COOKIE=change_me
 
 script > _rel/kazoo/log/sup.log 2>${LOG_DIR}/error.log &
 
-export KAZOO_CONFIG=$(dirname $0)/../rel/ci.config.ini
+export KAZOO_CONFIG=$(dirname $(readlink -f $0))/../rel/ci.config.ini
 kazoo console
 
 code=$?

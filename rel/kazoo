@@ -247,7 +247,7 @@ check_replace_os_vars() {
     FILE=$(basename $IN_FILE_PATH)
     BASE=${FILE%.*}
     EXT=${FILE##*.} 
-    OUT_FILE_PATH="${DIR}/${BASE}.$$.${EXT}"
+    OUT_FILE_PATH="${VM_NODE_FILES_DIR}/${BASE}.$$.${EXT}"
     if [ $RELX_REPLACE_OS_VARS ]; then
         # apply the environment variable substitution to $IN_FILE_PATH
         # the result is saved to $OUT_FILE_PATH
@@ -255,7 +255,7 @@ check_replace_os_vars() {
         # the file by saving a backup with the .orig extension
         replace_os_vars "$IN_FILE_PATH" "$OUT_FILE_PATH"
     else
-        cp "$ORIG_FILE_PATH" "$OUT_FILE_PATH"
+        cp "$IN_FILE_PATH" "$OUT_FILE_PATH"
     fi
     echo $OUT_FILE_PATH
 }

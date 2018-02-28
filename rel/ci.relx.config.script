@@ -27,7 +27,7 @@ VSN = os:cmd("echo -n $(scripts/next_version 2>/dev/null)"),
             ]}
 
 ,{include_src, false}
-,{include_erts, false}
+,{include_erts, true}
 
 ,{generate_start_script, false}
 ,{extended_start_script, false}

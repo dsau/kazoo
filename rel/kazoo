@@ -161,7 +161,7 @@ relx_rem_sh() {
     # Setup remote shell command to control node
     exec "$BINDIR/erl" "$NAME_TYPE" "$id" -remsh "$NAME" -boot start_clean \
          -boot_var ERTS_LIB_DIR "$ERTS_LIB_DIR" \
-         -setcookie "$COOKIE" -hidden -kernel net_ticktime $TICKTIME $VM_ARGS
+         -setcookie "$COOKIE" -hidden -kernel net_ticktime $TICKTIME
 }
 
 # Generate a random id
@@ -169,21 +169,27 @@ relx_gen_id() {
     od -t x -N 4 /dev/urandom | head -n1 | awk '{print $2}'
 }
 
-# Control a node                                                            
-relx_nodetool() {                                                           
-    command="$1"; shift                                                     
-                                                                                                                                                                                                               
-    "$ERTS_DIR/bin/escript" "$ROOTDIR/bin/nodetool" "$NAME_TYPE" "$NAME" \        
-                                -setcookie "$COOKIE" "$command" $@          
-}                                                                           
-                                                                                                                                                                                                               
-# Run an escript in the node's environment                                  
-relx_escript() {                                                    
-    shift; scriptpath="$1"; shift                                          
-    export RELEASE_ROOT_DIR                                                                                                                                                                                    
-                                                                                                                                                                                                               
-    "$ERTS_DIR/bin/escript" "$ROOTDIR/$scriptpath" $@                     
-}                                                                         
+# Control a node
+relx_nodetool() {
+    command="$1"; shift
+
+    "$ERTS_DIR/bin/escript" "$ROOTDIR/bin/nodetool" "$NAME_TYPE" "$NAME" \
+                                -setcookie "$COOKIE" "$command" $@
+}
+
+# Run an escript in the node's environment
+relx_escript() {
+    shift; scriptpath="$1"; shift
+    export RELEASE_ROOT_DIR
+
+    "$ERTS_DIR/bin/escript" "$ROOTDIR/$scriptpath" $@
+}
+
+# Output a start command for the last argument of run_erl
+relx_start_command() {
+    printf "exec \"%s\" \"%s\"" "$RELEASE_ROOT_DIR/bin/$REL_NAME" \
+           "$START_OPTION"
+}
 
 relx_get_code_paths() {
     code="{ok, [{release,_,_,Apps}]} = file:consult(\"$REL_DIR/$REL_NAME.rel\"),"\
@@ -241,7 +247,7 @@ check_replace_os_vars() {
     FILE=$(basename $IN_FILE_PATH)
     BASE=${FILE%.*}
     EXT=${FILE##*.} 
-    OUT_FILE_PATH="${VM_NODE_FILES_DIR}/${BASE}.$$.${EXT}"
+    OUT_FILE_PATH="${DIR}/${BASE}.$$.${EXT}"
     if [ $RELX_REPLACE_OS_VARS ]; then
         # apply the environment variable substitution to $IN_FILE_PATH
         # the result is saved to $OUT_FILE_PATH
@@ -249,7 +255,7 @@ check_replace_os_vars() {
         # the file by saving a backup with the .orig extension
         replace_os_vars "$IN_FILE_PATH" "$OUT_FILE_PATH"
     else
-        cp "$IN_FILE_PATH" "$OUT_FILE_PATH"
+        cp "$ORIG_FILE_PATH" "$OUT_FILE_PATH"
     fi
     echo $OUT_FILE_PATH
 }
@@ -424,7 +430,7 @@ case "$1" in
 
     attach)
         # Make sure a node IS running
-        if ! relx_nodetool "ping"; then
+        if ! relx_nodetool "ping" > /dev/null; then
             echo "Node is not running!"
             exit 1
         fi
@@ -497,6 +503,7 @@ case "$1" in
             foreground)
                 # start up the release in the foreground for use by runit
                 # or other supervision services
+                __code_paths=$(relx_get_code_paths)
                 if [ -f "$REL_DIR/$REL_NAME.boot" ]; then
                   BOOTFILE="$REL_DIR/$REL_NAME"
                 else
@@ -527,10 +534,11 @@ case "$1" in
         # Build an array of arguments to pass to exec later on
         # Build it here because this command will be used for logging.
         set -- "$BINDIR/erlexec" $FOREGROUNDOPTIONS \
+            +pc unicode \
             -boot "$BOOTFILE" -mode "$CODE_LOADING_MODE" \
             -boot_var ERTS_LIB_DIR "$ERTS_LIB_DIR" \
             -config "$RELX_CONFIG_PATH" \
-             $NAME_ARG \
+            $NAME_ARG \
             -args_file "$VMARGS_PATH" \
             -pa ${__code_paths}
 

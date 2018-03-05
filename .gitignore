@@ -22,8 +22,6 @@
 sup.bash
 
 _rel/
-rel/dev-vm.args
-rel/vm.args
 
 erlang.mk
 .erlang.mk

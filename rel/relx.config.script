@@ -21,33 +21,18 @@ Base = [runtime_tools
        ],
 VSN = os:cmd("echo -n $(scripts/next_version 2>/dev/null)"),
 
-[{lib_dirs, ["applications"
-            ,"core"
-            ,"deps"
-            ]}
+BASE = [{default_release, {kazoo, VSN}}
+       ,{release, {kazoo, VSN}
+       ,Base ++ Preparer(Apps ++ Core ++ Deps)
+       }],
+       
+APPS = [begin
+          {ok, [{application, App, Settings}]} = file:consult(list_to_binary(["applications/", atom_to_list(App), "/ebin/", atom_to_list(App), ".app"])),
+          AppDeps = proplists:get_value(applications, Settings, []),
+          {release, {App, VSN}, Base ++ Preparer(AppDeps)}
+        end
+        || App <- Apps,
+           not lists:member(App, ToFilterOut)
+       ],
 
-,{include_src, false}
-,{include_erts, true}
-
-,{generate_start_script, false}
-,{extended_start_script, false}
-
-,{sys_config, "rel/sys.config"}
-,{vm_args, "rel/vm.args"}
-
-,{overlay, [{copy, "../core/sup/priv/sup", "{{output_dir}}/bin/"}
-           ,{copy, "nodetool", "{{output_dir}}/bin/"}
-           ,{template, "kazoo", "{{output_dir}}/bin/kazoo"}
-          ]}
-            
-,{default_release, {kazoo, VSN}}
-,{release, {kazoo, VSN}
- ,Base ++ Preparer(Apps ++ Core ++ Deps)
- }
-]
-++ [{release, {App, VSN}
-    ,Base ++ Preparer([App] ++ Core ++ Deps)
-    }
-    || App <- Apps,
-       not lists:member(App, ToFilterOut)
-   ].
+CONFIG ++ BASE ++ APPS.

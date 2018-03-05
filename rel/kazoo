@@ -254,10 +254,11 @@ check_replace_os_vars() {
         # if they are both the same, then ensure that we don't clobber
         # the file by saving a backup with the .orig extension
         replace_os_vars "$IN_FILE_PATH" "$OUT_FILE_PATH"
+        cmp --silent $IN_FILE_PATH $OUT_FILE_PATH && rm $OUT_FILE_PATH && echo $IN_FILE_PATH || echo $OUT_FILE_PATH
     else
-        cp "$IN_FILE_PATH" "$OUT_FILE_PATH"
+        echo $IN_FILE_PATH
     fi
-    echo $OUT_FILE_PATH
+    
 }
 
 relx_run_hooks() {

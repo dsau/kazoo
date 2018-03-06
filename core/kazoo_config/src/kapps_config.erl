@@ -511,7 +511,7 @@ get_default_value(_Category, [?KEY_DEFAULT | Keys], Default, JObj) ->
     end;
 get_default_value(_Category, Keys, Default, JObj) ->
     case kz_json:get_value([?KEY_DEFAULT | Keys], JObj) of
-        'undefined' when Default /= 'undefined' -> Default;
+        'undefined' when Default =/= 'undefined' -> Default;
         Else -> Else
     end.
 

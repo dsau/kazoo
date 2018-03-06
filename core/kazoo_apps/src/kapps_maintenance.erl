@@ -982,8 +982,11 @@ handle_module_rename_doc(JObj) ->
 
 -spec validate_system_configs() -> [{kz_term:ne_binary(), _}].
 validate_system_configs() ->
-    Results = [ {Config, validate_system_config(Config)} || Config <- kapps_config_doc:list_configs() ],
-    [ Result || Result = {_, Status} <- Results, Status =/= [] ].
+    [ {Config, Status}
+      || Config <- kapps_config_doc:list_configs(),
+         Status <- [validate_system_config(Config)],
+         [] =/= Status
+    ].
 
 -spec validate_system_config(kz_term:ne_binary()) -> [{_, _}].
 validate_system_config(Id) ->

@@ -60,11 +60,12 @@ VERSION=$(shell $(ROOT)/scripts/next_version)
 
 ## SOURCES provides a way to specify compilation order (left to right)
 SOURCES     ?= $(wildcard src/*.erl) $(wildcard src/*/*.erl)
-MODULE_NAMES := $(sort $(foreach module,$(SOURCES),$(shell basename $(module) .erl)))
+MSOURCES     ?= $(wildcard src/*.erl) $(wildcard src/*/*.erl)
+MODULE_NAMES := $(sort $(foreach module,$(MSOURCES),$(shell basename $(module) .erl)))
 MODULES := $(shell echo $(MODULE_NAMES) | sed 's/ /,/g')
-BEAMS := $(sort $(foreach module,$(SOURCES),ebin/$(shell basename $(module) .erl).beam))
+BEAMS := $(sort $(foreach module,$(MSOURCES),ebin/$(shell basename $(module) .erl).beam))
 
-TEST_SOURCES := $(SOURCES) $(wildcard test/*.erl)
+TEST_SOURCES := $(MSOURCES) $(wildcard test/*.erl)
 TEST_MODULE_NAMES := $(sort $(foreach module,$(TEST_SOURCES),$(shell basename $(module) .erl)))
 TEST_MODULES := $(shell echo $(TEST_MODULE_NAMES) | sed 's/ /,/g')
 

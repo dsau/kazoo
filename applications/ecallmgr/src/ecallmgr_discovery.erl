@@ -20,7 +20,7 @@
 
 -define(SERVER, ?MODULE).
 
--type state() :: map().
+-type state() :: kz_time:gregorian_seconds().
 
 %%%=============================================================================
 %%% API
@@ -44,7 +44,7 @@ start_link() ->
 %% @end
 %%------------------------------------------------------------------------------
 -spec init(list()) -> {'ok', state(), pos_integer()}.
-init([]) -> {'ok', #{startup => kz_time:now_s()}, ?MILLISECONDS_IN_SECOND}.
+init([]) -> {'ok', kz_time:now_s(), ?MILLISECONDS_IN_SECOND}.
 
 %%------------------------------------------------------------------------------
 %% @doc Handling call messages
@@ -61,9 +61,9 @@ handle_call(_Request, _From, State) ->
 %% @end
 %%------------------------------------------------------------------------------
 -spec handle_cast(any(), state()) -> kz_types:handle_cast_ret_state(state()).
-handle_cast(_Msg, #{startup := Startup} = State) ->
+handle_cast(_Msg, Startup) ->
     lager:debug("unhandled cast: ~p", [_Msg]),
-    {'noreply', State, next_timeout(kz_time:elapsed_s(Startup))}.
+    {'noreply', Startup, next_timeout(kz_time:elapsed_s(Startup))}.
 
 %%------------------------------------------------------------------------------
 %% @doc Handling all non call/cast messages
@@ -71,12 +71,12 @@ handle_cast(_Msg, #{startup := Startup} = State) ->
 %% @end
 %%------------------------------------------------------------------------------
 -spec handle_info(any(), state()) -> kz_types:handle_info_ret_state(state()).
-handle_info('timeout', #{startup := Startup} = State) ->
+handle_info('timeout', Startup) ->
     _ = sbc_discovery(),
-    {'noreply', State, next_timeout(kz_time:elapsed_s(Startup))};
-handle_info(_Msg, #{startup := Startup} = State) ->
+    {'noreply', Startup, next_timeout(kz_time:elapsed_s(Startup))};
+handle_info(_Msg, Startup) ->
     lager:debug("unhandled message: ~p", [_Msg]),
-    {'noreply', State, next_timeout(kz_time:elapsed_s(Startup))}.
+    {'noreply', Startup, next_timeout(kz_time:elapsed_s(Startup))}.
 
 %%------------------------------------------------------------------------------
 %% @doc This function is called by a gen_server when it is about to

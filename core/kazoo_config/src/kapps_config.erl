@@ -985,9 +985,9 @@ get_category(Category, 'false') ->
         ,{{<<"callflow">>, <<"privacy_number">>}
          ,{<<"privacy">>, <<"privacy_number">>}
          }
-        ,{{<<"stepswitch">>, <<"block_anonymous_caller_id">>}
-         ,{<<"privacy">>, <<"block_anonymous_caller_id">>}
-         }
+%%        ,{{<<"stepswitch">>, <<"block_anonymous_caller_id">>}
+%%         ,{<<"privacy">>, <<"block_anonymous_caller_id">>}
+%%         }
 
         ,{{<<"fax">>, <<"conversion_command">>}
          ,{<<"fax">>, <<"conversion_pdf_command">>}
